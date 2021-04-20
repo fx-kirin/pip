@@ -547,10 +547,14 @@ class RequirementPreparer:
             local_file = None
         elif link.url not in self._downloaded:
             try:
-                local_file = unpack_url(
-                    link, req.source_dir, self._download,
-                    self.download_dir, hashes
-                )
+                if not link.is_existing_dir():
+                    local_file = unpack_url(
+                        link, req.source_dir, self._download,
+                        self.download_dir, hashes,
+                    )
+                else:
+                    req.source_dir = link.file_path
+                    local_file = None
             except NetworkConnectionError as exc:
                 raise InstallationError(
                     'Could not install requirement {} because of HTTP '
